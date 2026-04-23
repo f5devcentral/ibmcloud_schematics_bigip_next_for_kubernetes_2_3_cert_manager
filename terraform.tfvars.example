@@ -1,0 +1,8 @@
+ibmcloud_api_key        = "your-ibm-cloud-api-key"
+ibmcloud_cluster_region = "ca-tor"
+ibmcloud_resource_group = ""
+
+cluster_name_or_id = "my-openshift-cluster"
+
+cert_manager_namespace = "cert-manager"
+cert_manager_version   = "v1.17.3"

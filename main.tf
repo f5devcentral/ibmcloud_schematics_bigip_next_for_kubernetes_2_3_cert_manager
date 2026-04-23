@@ -1,0 +1,33 @@
+terraform {
+  required_version = ">= 1.0"
+  required_providers {
+    ibm = {
+      source  = "IBM-Cloud/ibm"
+      version = ">= 1.60.0"
+    }
+    kubernetes = {
+      source  = "hashicorp/kubernetes"
+      version = ">= 2.25.0"
+    }
+    helm = {
+      source  = "hashicorp/helm"
+      version = ">= 2.12.0"
+    }
+  }
+}
+
+module "cert_manager" {
+  source = "./modules/cert-manager"
+
+  depends_on = [data.ibm_container_cluster_config.cluster_config]
+
+  providers = {
+    kubernetes = kubernetes
+    helm       = helm
+  }
+
+  enabled               = true
+  namespace             = var.cert_manager_namespace
+  chart_version         = var.cert_manager_version
+  post_deployment_delay = 30
+}
