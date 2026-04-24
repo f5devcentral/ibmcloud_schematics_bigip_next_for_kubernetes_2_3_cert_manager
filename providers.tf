@@ -24,6 +24,3 @@ provider "helm" {
   }
 }
 
-provider "null" {}
-provider "local" {}
-provider "http" {}
