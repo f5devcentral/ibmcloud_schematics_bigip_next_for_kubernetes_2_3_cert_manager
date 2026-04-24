@@ -1,3 +1,9 @@
+# ============================================================
+# Root Terraform Configuration
+# F5 BNK Orchestrator — deploys to an existing ROKS cluster
+# Modules: cert-manager → flo → cneinstance → license
+# ============================================================
+
 terraform {
   required_version = ">= 1.0"
   required_providers {
@@ -13,8 +19,25 @@ terraform {
       source  = "hashicorp/helm"
       version = ">= 2.12.0"
     }
+    null = {
+      source  = "hashicorp/null"
+      version = ">= 3.2.0"
+    }
+    local = {
+      source  = "hashicorp/local"
+      version = ">= 2.4.0"
+    }
+    http = {
+      source  = "hashicorp/http"
+      version = ">= 3.0.0"
+    }
   }
 }
+
+# ============================================================
+# Module: cert-manager
+# Required before flo — installs cert-manager CRDs
+# ============================================================
 
 module "cert_manager" {
   source = "./modules/cert-manager"

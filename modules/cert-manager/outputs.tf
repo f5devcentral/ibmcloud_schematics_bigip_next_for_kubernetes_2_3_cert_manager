@@ -4,12 +4,12 @@
 
 output "namespace" {
   description = "Namespace where cert-manager is deployed"
-  value       = var.enabled ? kubernetes_namespace.cert_manager[0].metadata[0].name : null
+  value       = var.enabled ? kubernetes_namespace_v1.cert_manager[0].metadata[0].name : null
 }
 
 output "namespace_id" {
   description = "Kubernetes namespace UID"
-  value       = var.enabled ? kubernetes_namespace.cert_manager[0].metadata[0].uid : null
+  value       = var.enabled ? kubernetes_namespace_v1.cert_manager[0].metadata[0].uid : null
 }
 
 output "helm_release_name" {

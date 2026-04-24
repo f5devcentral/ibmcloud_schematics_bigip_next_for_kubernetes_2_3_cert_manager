@@ -25,7 +25,7 @@ terraform {
 }
 
 # Create cert-manager namespace
-resource "kubernetes_namespace" "cert_manager" {
+resource "kubernetes_namespace_v1" "cert_manager" {
   count = var.enabled ? 1 : 0
 
   metadata {
@@ -41,24 +41,23 @@ resource "helm_release" "cert_manager" {
   name       = "cert-manager"
   repository = var.chart_repository
   chart      = "cert-manager"
-  namespace  = kubernetes_namespace.cert_manager[0].metadata[0].name
+  namespace  = kubernetes_namespace_v1.cert_manager[0].metadata[0].name
   version    = var.chart_version
   wait       = var.wait_for_deployment
   timeout    = var.timeout
 
-  # Install CRDs as part of the Helm release
-  set {
-    name  = "installCRDs"
-    value = "true"
-  }
+  set = [
+    {
+      name  = "installCRDs"
+      value = "true"
+    },
+    {
+      name  = "featureGates"
+      value = "ServerSideApply=true"
+    },
+  ]
 
-  # Enable server-side apply for better resource management
-  set {
-    name  = "featureGates"
-    value = "ServerSideApply=true"
-  }
-
-  depends_on = [kubernetes_namespace.cert_manager[0]]
+  depends_on = [kubernetes_namespace_v1.cert_manager[0]]
 }
 
 # Wait for cert-manager CRDs to be fully registered

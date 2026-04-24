@@ -1,3 +1,12 @@
+# ============================================================
+# Root Terraform Variables
+# F5 BNK Orchestrator for existing ROKS cluster
+# ============================================================
+
+# ============================================================
+# IBM Cloud Variables
+# ============================================================
+
 variable "ibmcloud_api_key" {
   description = "IBM Cloud API Key"
   type        = string
@@ -13,18 +22,26 @@ variable "ibmcloud_cluster_region" {
 variable "ibmcloud_resource_group" {
   description = "IBM Cloud Resource Group name (leave empty to use account default)"
   type        = string
-  default     = ""
+  default     = "default"
 }
 
+# ============================================================
+# Cluster Inputs
+# ============================================================
+
 variable "cluster_name_or_id" {
-  description = "Name or ID of the existing OpenShift ROKS cluster"
+  description = "Name or ID of the existing OpenShift ROKS cluster to deploy BNK onto"
   type        = string
 
   validation {
     condition     = length(var.cluster_name_or_id) > 0
-    error_message = "cluster_name_or_id cannot be empty."
+    error_message = "cluster_name_or_id cannot be empty — an existing cluster is required."
   }
 }
+
+# ============================================================
+# cert-manager Configuration
+# ============================================================
 
 variable "cert_manager_namespace" {
   description = "Kubernetes namespace for cert-manager"
@@ -37,3 +54,4 @@ variable "cert_manager_version" {
   type        = string
   default     = "v1.17.3"
 }
+
