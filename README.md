@@ -2,7 +2,7 @@
 
 ## About This Workspace
 
-This Schematics-ready Terraform workspace deploys cert-manager onto an **existing** IBM Cloud ROKS (OpenShift) cluster. It does not create cluster infrastructure — provide the name or ID of a running ROKS cluster and the workspace installs all BNK components in the correct dependency order.
+This Schematics-ready Terraform workspace deploys cert-manager onto an **existing** IBM Cloud ROKS (OpenShift) cluster. It does not create cluster infrastructure — provide the name or ID of a running ROKS cluster and the workspace installs cert-manager in the correct dependency order.
 
 ## Deploying with IBM Schematics
 
@@ -16,39 +16,39 @@ This Schematics-ready Terraform workspace deploys cert-manager onto an **existin
 
 ### Target Cluster Variables
 
-This workspace deploys cert-manager onto an existing cluster. Cluster VPC information is discovered automatically from the cluster data source.
+This workspace deploys cert-manager onto an existing cluster. Cluster information is discovered automatically from the cluster data source.
 
 | Variable | Description | Required | Example |
 | -------- | ----------- | -------- | ------- |
-| `cluster_name_or_id` | Name or ID of the existing OpenShift ROKS cluster | REQUIRED | `my-openshift-cluster` |
+| `roks_cluster_name_or_id` | Name or ID of the existing OpenShift ROKS cluster | REQUIRED | `my-openshift-cluster` |
 
 Get your existing cluster name or ID:
 ```bash
 ibmcloud ks clusters --provider vpc-gen2
 ```
 
-#### Community Cert-Manager Certificate Management
+#### Community Cert-Manager Configuration
 
 | Variable | Description | Required | Example |
 | -------- | ----------- | -------- | ------- |
-| `cert_manager_namespace` | Kubernetes namespace for cert-manager | Optional | cert-manager (default) |
-| `cert_manager_version` | Helm chart version | Optional | v1.17.3 (default) |
+| `cert_manager_namespace` | Kubernetes namespace for cert-manager | Optional | `cert-manager` (default) |
+| `cert_manager_version` | Helm chart version | Optional | `v1.17.3` (default) |
 
 ## Project Directory Structure
 
 ```
-ibmcloud_schematics_bigip_next_for_kubernetes_2_3_roks_single_nic/
+ibmcloud_schematics_bigip_next_for_kubernetes_2_3_cert_manager/
 ├── main.tf                    # Root module configuration
 ├── variables.tf               # Root module variables
 ├── outputs.tf                 # Root module outputs
 ├── providers.tf               # Provider configuration
-├── data.tf                    # Data sources (cluster, VPC, transit gateway)
+├── data.tf                    # Data sources (resource group, cluster)
 ├── terraform.tfvars.example   # Example variable values
 ├── modules/
-│   ├── cert-manager/          # Cert-manager module
-│   │   ├── main.tf            # Cert-manager helm release and namespace
-│   │   ├── variables.tf       # Cert-manager variables
-│   │   └── outputs.tf         # Cert-manager outputs
+│   └── cert-manager/          # Cert-manager module
+│       ├── main.tf            # Cert-manager helm release and namespace
+│       ├── variables.tf       # Cert-manager variables
+│       └── outputs.tf         # Cert-manager outputs
 ```
 
 ## Module Dependency Chain
@@ -94,7 +94,6 @@ terraform apply -auto-approve
 ### Cleanup (Reverse Order)
 
 ```bash
-# Destroy in reverse dependency order
 terraform destroy -auto-approve
 ```
 
@@ -103,12 +102,12 @@ terraform destroy -auto-approve
 ### Module-Level Variables
 
 #### Cert-Manager Module
-- `enabled`: Enable/disable cert-manager deployment (controlled by `deploy_cert_manager`)
+- `enabled`: Enable/disable cert-manager deployment (hardcoded `true` at root)
 - `namespace`: Kubernetes namespace for cert-manager (default: `cert-manager`)
 - `chart_version`: Helm chart version (default: `v1.17.3`)
 - `chart_repository`: Helm repository URL (default: `https://charts.jetstack.io`)
-- `wait_for_deployment`: Wait for deployment to be ready (default: true)
-- `post_deployment_delay`: Time to wait after deployment for CRD registration (default: 30s)
+- `wait_for_deployment`: Wait for deployment to be ready (default: `true`)
+- `post_deployment_delay`: Time to wait after deployment for CRD registration (default: `30s`)
 
 ### Required Variables (terraform.tfvars)
 
@@ -119,28 +118,23 @@ ibmcloud_cluster_region = "ca-tor"
 ibmcloud_resource_group = ""
 
 # Target Cluster (required)
-cluster_name_or_id = "my-openshift-cluster"
+roks_cluster_name_or_id = "my-openshift-cluster"
 
 # Namespace Configuration
 cert_manager_namespace = "cert-manager"
 cert_manager_version   = "v1.17.3"
+```
 
 ## Outputs
 
 View all outputs:
 ```bash
-terraform output                    # All outputs
-terraform output cluster_id         # Specific output
+terraform output                          # All outputs
+terraform output cert_manager_namespace   # Specific output
 ```
 
 | Output | Description |
 | ------ | ----------- |
-| `cluster_id` | ID of the target OpenShift cluster |
-| `cluster_name` | Name of the target OpenShift cluster |
-| `cluster_crn` | CRN of the target OpenShift cluster |
-| `cluster_vpc_id` | ID of the cluster VPC (auto-discovered) |
-| `cluster_vpc_name` | Name of the cluster VPC (auto-discovered) |
-| `cluster_vpc_crn` | CRN of the cluster VPC (auto-discovered) |
 | `cert_manager_namespace` | Namespace where cert-manager is deployed |
 | `cert_manager_version` | Installed cert-manager Helm chart version |
 
